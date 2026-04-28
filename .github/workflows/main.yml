@@ -41,7 +41,7 @@ jobs:
 
       # 5. Subir reporte JaCoCo
       - name: Upload JaCoCo Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
           path: target/site/jacoco/
@@ -72,7 +72,7 @@ jobs:
 
       # 4. Subir artefacto JAR
       - name: Upload JAR
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-jar
           path: target/*.jar
