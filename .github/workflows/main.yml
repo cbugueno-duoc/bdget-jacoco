@@ -8,7 +8,7 @@ on:
 jobs:
 
   # =========================
-  # 🔐 1. SNYK SCAN (CORREGIDO)
+  # 🔐 1. SNYK SCAN
   # =========================
   snyk-scan:
     name: Snyk Security Scan
@@ -24,7 +24,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # Compilar dependencias (clave para Maven + Snyk)
+      # Compilar proyecto (necesario para dependencias)
       - name: Build project
         run: mvn clean install -DskipTests
 
@@ -34,19 +34,22 @@ jobs:
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # 👇 FIX REAL DEL ERROR -13
-      - name: Run Snyk test (Maven)
-        run: snyk test --file=pom.xml --package-manager=maven || true
+      # 👇 Reporte local (NO rompe pipeline)
+      - name: Run Snyk test (reporte local)
+        run: snyk test --file=pom.xml || true
 
-      - name: Generate Snyk Report
-        if: always()
-        run: snyk test --file=pom.xml --package-manager=maven --json > snyk-report.json || true
+      - name: Generate Snyk JSON report
+        run: snyk test --file=pom.xml --json > snyk-report.json || true
 
       - name: Upload Snyk Report
         uses: actions/upload-artifact@v4
         with:
           name: snyk-report
           path: snyk-report.json
+
+      # 👇 Análisis real en nube (ESTABLE)
+      - name: Snyk monitor (cloud analysis)
+        run: snyk monitor --file=pom.xml
 
   # =========================
   # 🧪 2. TEST + JACOCO
